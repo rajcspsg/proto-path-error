@@ -1,9 +1,5 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "proto-path-error"
-  )
 val openRtbCoreVersion = "1.5.5"
 val googleCommonProtosVersion = "1.12.0"
 
@@ -14,10 +10,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq[Def.Setting[_]](
 
 def scalaGrpcSettings: Seq[Def.Setting[_]] = Seq[Def.Setting[_]](
   libraryDependencies += "com.thesamet.scalapb"  %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
-  libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
   libraryDependencies += "com.google.api.grpc" % "proto-google-common-protos" % googleCommonProtosVersion % "protobuf",
-  libraryDependencies += "com.google.openrtb"  % "openrtb-core" % openRtbCoreVersion,
-  libraryDependencies += "com.google.openrtb"  % "openrtb-core"   % openRtbCoreVersion % "protobuf",
 
   PB.targets in Compile := Seq(
     PB.gens.java -> (sourceManaged in Compile).value,
@@ -26,15 +19,17 @@ def scalaGrpcSettings: Seq[Def.Setting[_]] = Seq[Def.Setting[_]](
 
   PB.includePaths in Compile := Seq(
     target.value / "protobuf_external",
-new File("definitions/common"),
 ),
   PB.protoSources in Compile := Seq(
     PB.externalIncludePath.value / "google" / "api",
-    new File("definitions/common"),
-    target.value / "protobuf_external"
+    target.value / "protobuf_external",
+    new File("definitions/common")
   ),
-
-  excludeFilter in PB.generate := new SimpleFileFilter(file => file.getCanonicalPath.contains("google/protobuf")),
 
   PB.additionalDependencies := Nil
 )
+
+lazy val root = (project in file("."))
+  .settings(
+    name := "proto-path-error"
+  ).settings(scalaGrpcSettings)
